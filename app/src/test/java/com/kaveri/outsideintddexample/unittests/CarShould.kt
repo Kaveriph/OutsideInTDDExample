@@ -5,15 +5,35 @@ import com.kaveri.outsideintddexample.Engine
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class CarShould {
 
     val engine: Engine = mock()
-    private val car: Car = Car(5.0, engine)
+    private var car: Car
+
+    init {
+        runTest {
+          whenever(engine.turnOn()).thenReturn(
+              flow {
+                  kotlinx.coroutines.delay(2000)
+                  emit(25.0)
+                  kotlinx.coroutines.delay(2000)
+                  emit(50.0)
+                  kotlinx.coroutines.delay(2000)
+                  emit(95.0)
+              }
+          )
+        }
+        car = Car(5.0, engine)
+    }
 
     @Test
     fun looseFuelWhenItTurnsOn() = runTest {
